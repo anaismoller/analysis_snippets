@@ -171,11 +171,10 @@ if __name__ == "__main__":
             if col not in ["indx", "ra", "dec"]
         }
     )
-    df_wise["id"] = df_wise["indx"]
+    df_wise["indx"] = df_wise["indx"].astype(int)
     df_wise["ra"] = df_wise["ra"].astype(float)
     df_wise["dec"] = df_wise["dec"].astype(float)
 
-    df["id"] = df["indx"]
     df["ra"] = df["ra"].astype(float)
     df["dec"] = df["dec"].astype(float)
     df = pd.merge(df, df_wise, on=["indx", "ra", "dec"], how="left")
