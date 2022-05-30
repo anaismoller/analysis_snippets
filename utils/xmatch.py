@@ -680,7 +680,8 @@ def cross_match_alerts_raw_generic(
         df_search_out["angDist"] = df_search_out["angDist"].astype(float)
         if ctlg == "vizier:II/358/smss":
             df_search_out = df_search_out.rename(columns={"indx": "index_SMSS"})
-        df_search_out = df_search_out.rename(columns={"indx": "indx"})
+        if "indx" not in df_search_out.keys():
+            df_search_out = df_search_out.rename(columns={"index": "indx"})
         df_search_out_tmp = df_search_out.sort_values("angDist", ascending=True)
         df_search_out_tmp = df_search_out_tmp.groupby("indx").first()
         df_search_out_tmp = df_search_out_tmp.rename(
