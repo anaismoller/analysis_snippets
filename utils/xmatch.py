@@ -662,8 +662,8 @@ def cross_match_alerts_raw_generic(
         return []
 
     df_out_tmp = pd.DataFrame()
-    df_out_tmp["indx"] = oid
-    df_out_tmp["indx"] = df_out_tmp["indx"].astype(str)
+    df_out_tmp["objectId"] = oid
+    df_out_tmp["objectId"] = df_out_tmp["objectId"].astype(str)
     df_out_tmp["ra"] = ra
     df_out_tmp["dec"] = dec
 
@@ -678,17 +678,15 @@ def cross_match_alerts_raw_generic(
         raise Exception
     else:
         df_search_out["angDist"] = df_search_out["angDist"].astype(float)
-        if ctlg == "vizier:II/358/smss":
-            df_search_out = df_search_out.rename(columns={"indx": "index_SMSS"})
-        if "indx" not in df_search_out.keys():
-            df_search_out = df_search_out.rename(columns={"index": "indx"})
+        df_search_out = df_search_out.rename(columns={"objectId": "idx_to_match"})
         df_search_out_tmp = df_search_out.sort_values("angDist", ascending=True)
-        df_search_out_tmp = df_search_out_tmp.groupby("indx").first()
+        df_search_out_tmp = df_search_out_tmp.groupby("idx_to_match").first()
         df_search_out_tmp = df_search_out_tmp.rename(
             columns={"ra": "ra_out", "dec": "dec_out"}
         )
+        df_search_out_tmp["objectId"] = df_search_out_tmp.index
 
-        df_out = pd.merge(df_out_tmp, df_search_out_tmp, on="indx", how="left")
+        df_out = pd.merge(df_out_tmp, df_search_out_tmp, on="objectId", how="left")
         df_out = df_out.fillna("Unknown")
         df_out = df_out.drop(["ra_in", "dec_in"], axis=1)
 
