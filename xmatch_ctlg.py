@@ -168,10 +168,10 @@ if __name__ == "__main__":
         columns={
             col: col + "_wise"
             for col in df_wise.columns
-            if col not in ["indx", "ra", "dec"]
+            if col not in ["objectId", "ra", "dec"]
         }
     )
-    df_wise["indx"] = df_wise["indx"].astype(int)
+    df_wise["indx"] = df_wise["objectId"].astype(int)
     df_wise["ra"] = df_wise["ra"].astype(float)
     df_wise["dec"] = df_wise["dec"].astype(float)
 
@@ -191,10 +191,10 @@ if __name__ == "__main__":
         columns={
             col: col + "_SMSS"
             for col in df_smss.columns
-            if col not in ["indx", "ra", "dec"]
+            if col not in ["objectId", "ra", "dec"]
         }
     )
-    df_smss["indx"] = df_smss["indx"]
+    df_smss["indx"] = df_smss["objectId"].astype(int)
     df_smss["ra"] = df_smss["ra"].astype(float)
     df_smss["dec"] = df_smss["dec"].astype(float)
     df = pd.merge(df, df_smss, on=["indx", "ra", "dec"], how="left")
@@ -211,10 +211,10 @@ if __name__ == "__main__":
         columns={
             col: col + "_TESS"
             for col in df_tess.columns
-            if col not in ["indx", "ra", "dec"]
+            if col not in ["objectId", "ra", "dec"]
         }
     )
-    df_tess["indx"] = df_tess["indx"]
+    df_tess["indx"] = df_tess["objectId"].astype(int)
     df_tess["ra"] = df_tess["ra"].astype(float)
     df_tess["dec"] = df_tess["dec"].astype(float)
     df = pd.merge(df, df_tess, on=["indx", "ra", "dec"], how="left")

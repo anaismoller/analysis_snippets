@@ -611,8 +611,8 @@ def cross_match_usno(list_idx, list_ra, list_dec, ctlg="vizier:I/345/usno2"):
 
 
 def cross_match_alerts_raw_generic(
-    oid: list, ra: list, dec: list, ctlg: str, distmaxarcsec: float
-) -> list:
+    oid, ra, dec, ctlg, distmaxarcsec=2, columns_to_keep=[],
+):
     """ Query the CDSXmatch service to find identified objects
     in alerts. 
     Parameters
@@ -668,7 +668,7 @@ def cross_match_alerts_raw_generic(
     df_out_tmp["dec"] = dec
 
     if len(data) == 0:
-        print("No match found")
+        print(f"No match found {ctlg}")
         return df_out_tmp
 
     data = [x.split(",") for x in data]
@@ -678,7 +678,14 @@ def cross_match_alerts_raw_generic(
         raise Exception
     else:
         df_search_out["angDist"] = df_search_out["angDist"].astype(float)
-        df_search_out = df_search_out.rename(columns={"objectId": "idx_to_match"})
+        if "objectId" in df_search_out.keys().to_list():
+            df_search_out = df_search_out.rename(columns={"objectId": "idx_to_match"})
+        elif "index" in df_search_out.keys().to_list():
+            df_search_out = df_search_out.rename(columns={"index": "idx_to_match"})
+        else:
+            print(f"Find name of cross-match catalogue index column {ctlg}")
+            raise ValueError
+
         df_search_out_tmp = df_search_out.sort_values("angDist", ascending=True)
         df_search_out_tmp = df_search_out_tmp.groupby("idx_to_match").first()
         df_search_out_tmp = df_search_out_tmp.rename(
@@ -688,6 +695,14 @@ def cross_match_alerts_raw_generic(
 
         df_out = pd.merge(df_out_tmp, df_search_out_tmp, on="objectId", how="left")
         df_out = df_out.fillna("Unknown")
-        df_out = df_out.drop(["ra_in", "dec_in"], axis=1)
+        # df_out = df_out.drop(["ra_in", "dec_in"], axis=1)
 
-        return df_out
+        df_out["ra"] = df_out["ra"].astype(float)
+        df_out["dec"] = df_out["dec"].astype(float)
+
+        if len(columns_to_keep) < 1:
+            columns_to_keep = [
+                k for k in df_out.keys().to_list() if k not in ["ra", "dec", "objectId"]
+            ]
+
+        return df_out[["objectId", "ra", "dec"] + columns_to_keep]
