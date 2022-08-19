@@ -100,42 +100,33 @@ if __name__ == "__main__":
     df["simbad_sptype"] = sptype
     df["simbad_redshift"] = z
 
-    print("GAIA2 + e3 xmatch")
-    source, ragaia, decgaia, plx, plxerr, gmag, angdist = xmatch.cross_match_gaia(
+    print("GAIA3 xmatch")
+    df_gaia = xmatch.cross_match_alerts_raw_generic(
         df["indx"].to_list(),
         df["ra"].to_list(),
         df["dec"].to_list(),
-        ctlg="vizier:I/345/gaia2",
+        ctlg="vizier:I/355/gaiadr3",
+        distmaxarcsec=2,
+        columns_to_keep=[
+            "DR3Name",
+            "RAdeg",
+            "DEdeg",
+            "Plx",
+            "e_Plx",
+            "Gmag",
+            "e_Gmag",
+            "angDist",
+        ],
     )
-    (
-        source_edr3,
-        ragaia_edr3,
-        decgaia_edr3,
-        plx_edr3,
-        plxerr_edr3,
-        gmag_edr3,
-        angdist_edr3,
-    ) = xmatch.cross_match_gaia(
-        df["indx"].to_list(),
-        df["ra"].to_list(),
-        df["dec"].to_list(),
-        ctlg="vizier:I/350/gaiaedr3",
+    df_gaia = df_gaia.rename(
+        columns={
+            col: "GaiaDR3_" + col
+            for col in df_gaia.columns
+            if col not in ["objectId", "ra", "dec"]
+        }
     )
-    # save in df
-    df["gaia_DR2_source"] = source
-    df["gaia_DR2_ra"] = ragaia
-    df["gaia_DR2_dec"] = decgaia
-    df["gaia_DR2_parallax"] = plx
-    df["gaia_DR2_parallaxerr"] = plxerr
-    df["gaia_DR2_gmag"] = gmag
-    df["gaia_DR2_angdist"] = angdist
-    df["gaia_eDR3_source"] = source_edr3
-    df["gaia_eDR3_ra"] = ragaia_edr3
-    df["gaia_eDR3_dec"] = decgaia_edr3
-    df["gaia_eDR3_parallax"] = plx_edr3
-    df["gaia_eDR3_parallaxerr"] = plxerr_edr3
-    df["gaia_eDR3_gmag"] = gmag_edr3
-    df["gaia_eDR3_angdist"] = angdist_edr3
+    df_gaia["indx"] = df_gaia["objectId"].astype(int)
+    df = pd.merge(df, df_gaia, on=["indx", "ra", "dec"], how="left")
 
     print("USNO-A.20 xmatch")
     (source_usno, angdist_usno,) = xmatch.cross_match_usno(
@@ -171,7 +162,8 @@ if __name__ == "__main__":
             if col not in ["objectId", "ra", "dec"]
         }
     )
-    df_wise["indx"] = df_wise["objectId"].astype(int)
+    df_wise = df_wise.rename(columns={"objectId": "indx"})
+    df_wise["indx"] = df_wise["indx"].astype(int)
     df_wise["ra"] = df_wise["ra"].astype(float)
     df_wise["dec"] = df_wise["dec"].astype(float)
 
@@ -194,7 +186,8 @@ if __name__ == "__main__":
             if col not in ["objectId", "ra", "dec"]
         }
     )
-    df_smss["indx"] = df_smss["objectId"].astype(int)
+    df_smss = df_smss.rename(columns={"objectId": "indx"})
+    df_smss["indx"] = df_smss["indx"].astype(int)
     df_smss["ra"] = df_smss["ra"].astype(float)
     df_smss["dec"] = df_smss["dec"].astype(float)
     df = pd.merge(df, df_smss, on=["indx", "ra", "dec"], how="left")
@@ -214,7 +207,8 @@ if __name__ == "__main__":
             if col not in ["objectId", "ra", "dec"]
         }
     )
-    df_tess["indx"] = df_tess["objectId"].astype(int)
+    df_tess = df_tess.rename(columns={"objectId": "indx"})
+    df_tess["indx"] = df_tess["indx"].astype(int)
     df_tess["ra"] = df_tess["ra"].astype(float)
     df_tess["dec"] = df_tess["dec"].astype(float)
     df = pd.merge(df, df_tess, on=["indx", "ra", "dec"], how="left")
