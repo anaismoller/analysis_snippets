@@ -7,8 +7,8 @@ import os
 import argparse
 import pandas as pd
 from pathlib import Path
-from utils import xmatch
-from utils import query_photoz_datalab as photoz
+from myutils import xmatch
+from myutils import query_photoz_datalab as photoz
 
 
 def convert_to_degrees(row, ra_key="RA", dec_key="dec", key_toprocess=""):
@@ -125,7 +125,7 @@ if __name__ == "__main__":
             if col not in ["objectId", "ra", "dec"]
         }
     )
-    df_gaia["indx"] = df_gaia["objectId"].astype(int)
+    df_gaia["indx"] = df_gaia["objectId"].astype(str)
     df = pd.merge(df, df_gaia, on=["indx", "ra", "dec"], how="left")
 
     print("USNO-A.20 xmatch")
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         }
     )
     df_wise = df_wise.rename(columns={"objectId": "indx"})
-    df_wise["indx"] = df_wise["indx"].astype(int)
+    df_wise["indx"] = df_wise["indx"].astype(str)
     df_wise["ra"] = df_wise["ra"].astype(float)
     df_wise["dec"] = df_wise["dec"].astype(float)
 
@@ -187,7 +187,7 @@ if __name__ == "__main__":
         }
     )
     df_smss = df_smss.rename(columns={"objectId": "indx"})
-    df_smss["indx"] = df_smss["indx"].astype(int)
+    df_smss["indx"] = df_smss["indx"].astype(str)
     df_smss["ra"] = df_smss["ra"].astype(float)
     df_smss["dec"] = df_smss["dec"].astype(float)
     df = pd.merge(df, df_smss, on=["indx", "ra", "dec"], how="left")
@@ -208,7 +208,7 @@ if __name__ == "__main__":
         }
     )
     df_tess = df_tess.rename(columns={"objectId": "indx"})
-    df_tess["indx"] = df_tess["indx"].astype(int)
+    df_tess["indx"] = df_tess["indx"].astype(str)
     df_tess["ra"] = df_tess["ra"].astype(float)
     df_tess["dec"] = df_tess["dec"].astype(float)
     df = pd.merge(df, df_tess, on=["indx", "ra", "dec"], how="left")
